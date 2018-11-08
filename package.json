@@ -5,6 +5,7 @@
   "main": "dist/",
   "author": "Joe Reckley",
   "license": "ISC",
+  "repository": "https://github.com/joerex/react-redux-accounts.git",
   "peerDependencies": {
     "react": "^16.6.1",
     "react-redux": "^5.1.0",
