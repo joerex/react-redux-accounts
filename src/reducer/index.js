@@ -1,18 +1,21 @@
 import {
+  LOGIN_PENDING,
   LOGIN_SUCCESS,
-  LOGIN_FAILED,
+  LOGIN_ERROR,
+  LOGOUT_PENDING,
   LOGOUT_SUCCESS,
-  LOGOUT_FAILED,
+  LOGOUT_ERROR,
   RESET_PASSWORD_SUCCESS,
-  RESET_PASSWORD_FAILED,
-  UPDATE_PASSWORD_FAILED,
+  RESET_PASSWORD_ERROR,
+  UPDATE_PASSWORD_ERROR,
   UPDATE_PASSWORD_SUCCESS,
-  REGISTER_FAILED,
+  REGISTER_PENDING,
+  REGISTER_ERROR,
   REGISTER_SUCCESS,
-  REQUEST_LOGIN_PENDING,
-  REQUEST_LOGOUT_PENDING,
-  REQUEST_REGISTER_PENDING
-} from '../actions/index';
+  UPDATE_ROLE,
+  SET_INITIALIZED,
+  CLEAR_ERROR
+} from '../actions';
 
 export const defaultAuthState = {
   loading: true,
@@ -25,32 +28,26 @@ export const defaultAuthState = {
   updatePasswordSuccess: false,
   resetPasswordSuccess: false,
   registerSuccess: false,
+  user: null
 };
 
 const authReducer = (state = defaultAuthState, action) => {
   switch(action.type) {
-    case REQUEST_LOGIN_PENDING:
-    case REQUEST_LOGOUT_PENDING:
-    case REQUEST_REGISTER_PENDING:
-      return {
-        ...state,
-        loading: true
-      };
     case LOGIN_SUCCESS:
       return {
         ...state,
         authenticated: true,
         failedAttempts: 0,
-        username: action.payload.username,
-        role: action.payload.role,
-        token: action.payload.token,
+        username: action.user.username,
+        role: action.user.role,
+        token: action.user.token,
         loading:false,
       };
-    case LOGIN_FAILED:
+    case LOGIN_ERROR:
       return {
         ...state,
         failedAttempts: ++state.failedAttempts,
-        error: action.payload,
+        error: action.error,
         loading:false
       };
     case LOGOUT_SUCCESS:
@@ -58,11 +55,12 @@ const authReducer = (state = defaultAuthState, action) => {
         ...state,
         authenticated: false,
         failedAttempts: 0,
+        user: null,
         username: '',
         role: null,
         loading:false,
       };
-    case LOGOUT_FAILED:
+    case LOGOUT_ERROR:
       return {
         ...state,
         failedAttempts: ++state.failedAttempts,
@@ -75,12 +73,11 @@ const authReducer = (state = defaultAuthState, action) => {
         email: state.email,
         resetPasswordSuccess: true
       };
-    case RESET_PASSWORD_FAILED:
+    case RESET_PASSWORD_ERROR:
       return {
         ...state,
         failedResetAttempts: ++state.failedResetAttempts,
-        error: action.payload,
-        resetPasswordSuccess: false
+        error: action.error,
       };
     case UPDATE_PASSWORD_SUCCESS:
       return {
@@ -89,24 +86,37 @@ const authReducer = (state = defaultAuthState, action) => {
         email: state.email,
         updatePasswordSuccess: true
       };
-    case UPDATE_PASSWORD_FAILED:
+    case UPDATE_PASSWORD_ERROR:
       return {
         ...state,
         failedResetAttempts: ++state.failedResetAttempts,
-        error: action.payload,
-        updatePasswordSuccess: false
+        error: action.error,
       };
     case REGISTER_SUCCESS:
       return {
         ...state,
-        email: state.email,
         registerSuccess: true
       };
-    case REGISTER_FAILED:
+    case REGISTER_ERROR:
       return {
         ...state,
-        error: action.payload,
+        error: action.error,
         registerSuccess: false
+      };
+    case UPDATE_ROLE:
+      return {
+        ...state,
+        user: {...state.user, ...action.role}
+      };
+    case SET_INITIALIZED:
+      return {
+        ...state,
+        loading: false
+      };
+    case CLEAR_ERROR:
+      return {
+        ...state,
+        error: null
       };
     default:
       return state;
@@ -132,7 +142,19 @@ export const getAuthFailedAttempts = state => {
 };
 
 export const getAuthError = state => {
-  return state.auth.error;
+  if (state.auth.error && state.auth.error.message) {
+    return state.auth.error.message;
+  }
+  else if (state.auth.error && typeof state.auth.error === 'string') {
+    return state.auth.error;
+  }
+  else if (state.auth.error) {
+    return 'Something went wrong...';
+  }
+  else {
+    return null;
+  }
+
 };
 
 export const getRole = state => {
@@ -148,12 +170,9 @@ export const getAuthResetPasswordSuccess = state => {
 };
 
 export const getAuthRegisterSuccess = state => {
-  return state.auth.updatePasswordSuccess;
+  return state.auth.registerSuccess;
 };
 
 export const getUser = state => {
-  return state.auth.authenticated && {
-    username: state.auth.username,
-    role: state.auth.role
-  };
+  return state.auth.user;
 };

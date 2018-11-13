@@ -1,5 +1,5 @@
 ## React + Redux Accounts
-Components and state management for the common app.
+Components and state management for functionality related to app accounts: login, logout, register, reset password.
 
 #### Components
 

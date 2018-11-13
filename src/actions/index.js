@@ -1,29 +1,32 @@
-import * as fetchApi from './fetch.api';
-
 export const LOGIN_PENDING = 'LOGIN_PENDING';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
-export const LOGIN_FAILED = 'LOGIN_FAILED';
+export const LOGIN_ERROR = 'LOGIN_ERROR';
 export const LOGOUT_PENDING = 'LOGOUT_PENDING';
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
-export const LOGOUT_FAILED = 'LOGOUT_FAILED';
+export const LOGOUT_ERROR = 'LOGOUT_ERROR';
+export const RESET_PASSWORD_PENDING = 'RESET_PASSWORD_PENDING';
 export const RESET_PASSWORD_SUCCESS = 'RESET_PASSWORD_SUCCESS';
-export const RESET_PASSWORD_FAILED = 'RESET_PASSWORD_FAILED';
+export const RESET_PASSWORD_ERROR = 'RESET_PASSWORD_ERROR';
+export const UPDATE_PASSWORD_PENDING = 'UPDATE_PASSWORD_PENDING';
 export const UPDATE_PASSWORD_SUCCESS = 'UPDATE_PASSWORD_SUCCESS';
-export const UPDATE_PASSWORD_FAILED = 'UPDATE_PASSWORD_FAILED';
+export const UPDATE_PASSWORD_ERROR = 'UPDATE_PASSWORD_ERROR';
 export const REGISTER_PENDING = 'REQUEST_REGISTER_PENDING';
 export const REGISTER_SUCCESS = 'REGISTER_SUCCESS';
-export const REGISTER_FAILED = 'REGISTER_FAILED';
+export const REGISTER_ERROR = 'REGISTER_ERROR';
+export const UPDATE_ROLE = 'UPDATE_ROLE';
+export const SET_INITIALIZED = 'SET_INITIALIZED';
+export const CLEAR_ERROR = 'CLEAR_ERROR';
 
 export const loginPending = () => {
   return {type: LOGIN_PENDING};
 };
 
 export const loginSuccess = user => {
-  return {type: LOGIN_SUCCESS, payload: user};
+  return {type: LOGIN_SUCCESS, user};
 };
 
-export const loginFailed = (error) => {
-  return {type: LOGIN_FAILED, payload: error};
+export const loginError = error => {
+  return {type: LOGIN_ERROR, error};
 };
 
 export const logoutPending = () => {
@@ -34,41 +37,60 @@ export const logoutSuccess = () => {
   return {type: LOGOUT_SUCCESS};
 };
 
-export const logoutFailed = () => {
-  return {type: LOGOUT_FAILED};
+export const logoutError = error => {
+  return {type: LOGOUT_ERROR, error};
 };
 
-export const resetPasswordSuccess = (email) => {
-  return {type: RESET_PASSWORD_SUCCESS, payload: email};
+export const resetPasswordPending = () => {
+  return {type: RESET_PASSWORD_PENDING}
 };
 
-export const resetPasswordFailed = (error) => {
-  return {type: RESET_PASSWORD_FAILED, payload: error};
+export const resetPasswordSuccess = email => {
+  return {type: RESET_PASSWORD_SUCCESS, email};
 };
 
-export const updatePasswordSuccess = (email) => {
-  return {type: UPDATE_PASSWORD_SUCCESS, payload: email};
+export const resetPasswordError = error => {
+  return {type: RESET_PASSWORD_ERROR, error};
 };
 
-export const updatePasswordFailed = (error) => {
-  return {type: UPDATE_PASSWORD_FAILED, payload: error};
+export const updatePasswordPending = () => {
+  return {type: UPDATE_PASSWORD_PENDING};
+};
+
+export const updatePasswordSuccess = email => {
+  return {type: UPDATE_PASSWORD_SUCCESS, email};
+};
+
+export const updatePasswordError = error => {
+  return {type: UPDATE_PASSWORD_ERROR, error};
 };
 
 export const registerPending = () => {
   return {type: REGISTER_PENDING};
 };
 
-export const registerSuccess = (email) => {
-  return {type: REGISTER_SUCCESS, payload: email};
+export const registerSuccess = email => {
+  return {type: REGISTER_SUCCESS, email};
 };
 
-export const registerFailed = (error) => {
-  return {type: REGISTER_FAILED, payload: error};
+export const registerError = error => {
+  return {type: REGISTER_ERROR, error};
 };
 
-export const updateAuth = fetchApi.updateAuth;
-export const login = fetchApi.login;
-export const logout = fetchApi.logout;
-export const register = fetchApi.register;
-export const resetPassword = fetchApi.resetPassword;
-export const updatePassword = fetchApi.updatePassword;
+export const updateRole = role => {
+  return {type: UPDATE_ROLE, role};
+};
+
+export const setInitialized = () => {
+  return {type: SET_INITIALIZED}
+};
+
+export const clearError = () => {
+  return {type: CLEAR_ERROR};
+};
+
+export const clearLocalStorage = () => {
+  return dispatch => {
+    localStorage.removeItem('app-accounts');
+  };
+};

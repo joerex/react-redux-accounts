@@ -1,28 +1,31 @@
 import {
-  loginSuccess,
-  logoutSuccess,
-  loginFailed,
-  registerFailed,
-  registerSuccess,
   loginPending,
+  loginSuccess,
+  loginError,
   logoutPending,
-  resetPasswordFailed,
+  logoutSuccess,
+  logoutError,
+  registerPending,
+  registerSuccess,
+  registerError,
+  resetPasswordPending,
   resetPasswordSuccess,
-  updatePasswordFailed,
-  updatePasswordSuccess, logoutFailed
+  resetPasswordError,
+  updatePasswordSuccess,
+  updatePasswordError,
 } from "./index";
 
 const API_ROOT = process.env.REACT_APP_API_ROOT || '';
 
 export const updateAuth = () => {
   return dispatch => {
-    const authString = localStorage.getItem('wkcollection');
+    const authString = localStorage.getItem('app-accounts');
 
     if (authString) {
       const authData = authString.split(',');
       dispatch(loginSuccess({
-        username: authData[1],
         token: authData[0],
+        username: authData[1],
         role: {value: authData[2], label: authData[3]}
       }));
     }
@@ -36,7 +39,7 @@ export const login = (params) => {
   return async dispatch => {
     dispatch(loginPending());
 
-    const authString = localStorage.getItem('wkcollection');
+    const authString = localStorage.getItem('app-accounts');
 
     if (authString) {
       const authData = authString.split(',');
@@ -58,12 +61,12 @@ export const login = (params) => {
       });
 
       if (!response.ok) {
-        dispatch(loginFailed(response.message));
+        dispatch(loginError(response.statusText));
       }
       else {
         const data = await response.json();
-        const authString = [data.success.token, data.username, data.success.rolevalue, data.success.rolelabel];
-        localStorage.setItem('wkcollection', authString);
+        const authString = [data.success.token, params.username, data.success.rolevalue, data.success.rolelabel];
+        localStorage.setItem('app-accounts', authString);
         dispatch(loginSuccess({
           username: params.username,
           token: data.success.token,
@@ -72,7 +75,7 @@ export const login = (params) => {
       }
     }
     catch (error) {
-      dispatch(loginFailed(error || 'Login failed'))
+      dispatch(loginError(error || 'Login failed'))
     }
   }
 };
@@ -90,14 +93,14 @@ export const logout = (token) => {
       });
 
       if (!response.ok) {
-        dispatch(logoutFailed());
+        dispatch(logoutError());
       }
       else {
         dispatch(logoutSuccess())
       }
     }
     catch (error) {
-      dispatch(logoutFailed());
+      dispatch(logoutError());
     }
   }
 };
@@ -112,8 +115,6 @@ export const register = (params) => {
     form.append("password", params.password);
     form.append("c_password", params.password);
 
-    debugger;
-
     try {
       const response = await fetch(API_ROOT + '/api/register', {
         method: "POST",
@@ -121,27 +122,26 @@ export const register = (params) => {
       });
 
       if (!response.ok) {
-        dispatch(registerFailed(response.code));
+        const data = await response.json();
+        const error = Object.keys(data.error).reduce((acc, err) => {
+          return acc + data.error[err][0] + ' ';
+        }, '');
+        dispatch(registerError(error));
       }
       else {
-        const data = await response.json();
         dispatch(registerSuccess(params.email));
       }
     }
     catch (error) {
-      dispatch(registerFailed(error))
+      dispatch(registerError(error))
     }
   }
 };
 
-export const resetPassword = (params) => {
-  return dispatch => {
+export const resetPassword = async (params) => {
 
-  }
 };
 
-export const updatePassword = (params) => {
-  return dispatch => {
+export const updatePassword = async (params) => {
 
-  }
 };

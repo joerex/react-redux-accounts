@@ -1,9 +1,7 @@
 import React, {Component} from 'react';
-import {Link} from 'react-router-dom';
-import {login} from '../../actions/index';
-import {getAuthFailedAttempts, getAuthError} from '../../reducer/index';
+import {getAuthFailedAttempts, getAuthError} from '../../reducer';
+import {clearError} from '../../actions';
 import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
 
 export class LoginComponent extends Component {
   constructor(props) {
@@ -15,10 +13,13 @@ export class LoginComponent extends Component {
 
   handleSubmit(event) {
     event.preventDefault();
-    this.props.login({username: this.state.username, password: this.state.password});
+    this.props.dispatch(this.props.action({username: this.state.username, password: this.state.password}));
   }
 
   handleInputChange(event) {
+    if (this.props.error) {
+      this.props.dispatch(clearError());
+    }
     this.setState({
       [event.target.name]: event.target.value
     });
@@ -40,16 +41,10 @@ export class LoginComponent extends Component {
                  placeholder="Password" />
           <input type="submit" value="Login" className="btn btn-block btn-brand" />
 
-          <p><Link to="/forgot-password">Forgot Password</Link></p>
-
-          { this.props.failedAttempts > 0 &&
-            <span className="alert alert-danger">
-              Incorrect username or password
-              { this.props.error &&
-                <span class="error">{this.props.error}</span>
-              }
-            </span>
+          { this.props.error &&
+          <div className="alert alert-danger">{this.props.error}</div>
           }
+
         </form>
       </div>
     );
@@ -64,9 +59,9 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => {
-  return bindActionCreators({
-    login
-  }, dispatch)
+  return {
+    dispatch
+  }
 };
 
 const Login = connect(

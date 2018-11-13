@@ -1,109 +1,100 @@
-import React, {Component} from 'react';
-import {register} from '../../actions/index';
-import Select from 'react-select';
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
+import React, {Fragment} from 'react';
+import { Formik, Field, Form, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import SelectField from "../SelectField/SelectField";
+import {getAuthError, getAuthRegisterSuccess, getAuthToken} from "../../reducer";
+import {connect} from "react-redux";
 import {Link} from 'react-router-dom';
-import {getAuthError, getAuthRegisterSuccess} from "../../reducer/index";
+import './Register.css';
 
-class Register extends Component {
-  constructor(props) {
-    super(props);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.state = {username: '', password: '', email: '', type: null};
-  }
+export const Register = props => {
+  const {error, dispatch, action, token, registerSuccess, redirect} = props;
 
-  handleSelect(event) {
-   this.setState({type: event.value});
-  }
-
-  handleSubmit(event) {
-    event.preventDefault();
-
-    this.props.register({
-      username: this.state.username,
-      password: this.state.password,
-      email: this.state.email,
-      type: this.state.type}
-    );
-  }
-
-  handleInputChange(event) {
-    this.setState({
-      [event.target.name]: event.target.value
-    });
-  }
-
-  render() {
-    const options = [
-      {label: 'Standard User', value: '1'},
-      {label: 'Insurer', value: '2'},
-      {label: 'Administrator', value: '3'}
-    ];
-
+  // build dom fields
+  const fields = props.fields.map((field, i) => {
     return (
-      <div className="register center-form">
-        {this.props.registerSuccess &&
-        <div className="alert alert-success">
-          Your account has been created. Please go <Link to="/">Login</Link>
-        </div>
+      <div key={i}>
+        {(field.type === 'text' || field.type === 'email' || field.type === 'password') &&
+        <Fragment>
+          <Field name={field.name} placeholder={field.placeholder} type={field.type} validate={field.validate} />
+          <ErrorMessage name={field.name} component="div" className="alert alert-danger" />
+        </Fragment>
         }
-
-        <form onSubmit={this.handleSubmit}>
-          <input name="username"
-                 type="text"
-                 value={this.state.username}
-                 onChange={this.handleInputChange}
-                 placeholder="Username"/>
-          <input name="password"
-                 type="password"
-                 value={this.state.password}
-                 onChange={this.handleInputChange}
-                 placeholder="Password"/>
-          <input name="email"
-                 type="text"
-                 value={this.state.email}
-                 onChange={this.handleInputChange}
-                 placeholder="Email"/>
-
-          <Select
-            name="type"
-            className="selector"
-            placeholder="Select User Type"
-            openOnFocus={true}
-            value={this.state.type}
-            onChange={(e) => this.handleSelect(e)}
-            options={options}
-          />
-
-          <input type="submit" value="Register" className="btn btn-block btn-brand"/>
-
-          {this.props.failedAttempts > 0 &&
-          <span className="alert alert-danger">
-                  Incorrect username or password
-            {this.props.error &&
-            <span className="error">{this.props.error}</span>
-            }
-                </span>
-          }
-        </form>
+        {field.type === 'select' &&
+        <Fragment>
+          <Field name={field.name} component={SelectField} options={field.options} placeholder={field.placeholder} />
+          <ErrorMessage name={field.name} component="div" className="alert alert-danger" />
+        </Fragment>
+        }
       </div>
-    );
-  }
-}
+    )
+  });
+
+  // build validation schema
+  const shape = props.fields.reduce((accumulator, field) => {
+    if (field.schema) {
+      return {
+        ...accumulator,
+        [field.name]: field.schema
+      }
+    }
+    else {
+      return accumulator;
+    }
+  }, {});
+
+  const schema = Yup.object().shape(shape);
+
+  // build initial values
+  const initialValues = props.fields.reduce((accumulator, field) => {
+    return {
+      ...accumulator,
+      [field.name]: field.value || ''
+    }
+  }, {});
+
+  return (
+    <div className='Register'>
+      {registerSuccess &&
+      <div className="alert alert-success">
+        Your account has been created. Please go <Link to={redirect}>Login</Link>
+      </div>
+      }
+
+      <Formik
+        initialValues={initialValues}
+        validateOnBlur={false}
+        validateOnChange={false}
+        validationSchema={schema}
+        onSubmit={values => dispatch(action(values, token))}
+        render={({ errors, touched, isValidating }) => (
+          <Form>
+            {fields}
+
+            <button type="submit" className="btn btn-block btn-brand">
+              Submit {isValidating && <i className="fa fa-spinner fa-spin"></i>}
+            </button>
+
+            {error && <div className="alert alert-danger">{error}</div>}
+          </Form>
+        )}
+      />
+    </div>
+  );
+};
 
 const mapStateToProps = state => {
   return {
     error: getAuthError(state),
-    registerSuccess: getAuthRegisterSuccess(state)
+    registerSuccess: getAuthRegisterSuccess(state),
+    token: getAuthToken(state)
   }
 };
 
 const mapDispatchToProps = dispatch => {
-  return bindActionCreators({
-    register
-  }, dispatch)
+  return {
+    dispatch
+  }
 };
 
 export default connect(
