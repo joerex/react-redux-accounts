@@ -96,7 +96,8 @@ export const logout = (token) => {
         dispatch(logoutError());
       }
       else {
-        dispatch(logoutSuccess())
+        dispatch(logoutSuccess());
+        localStorage.removeItem('app-accounts');
       }
     }
     catch (error) {
