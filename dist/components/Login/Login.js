@@ -79,6 +79,11 @@ var LoginComponent = exports.LoginComponent = function (_Component) {
             'div',
             { className: 'alert alert-danger' },
             this.props.error
+          ),
+          _react2.default.createElement(
+            'a',
+            { href: this.props.forgotPasswordLink, target: '_blank' },
+            'Forgot password?'
           )
         )
       );
