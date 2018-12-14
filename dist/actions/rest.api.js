@@ -85,6 +85,7 @@ var logout = exports.logout = function logout(token) {
         dispatch((0, _index.logoutError)());
       } else {
         dispatch((0, _index.logoutSuccess)());
+        localStorage.removeItem('app-accounts');
       }
     } catch (error) {
       dispatch((0, _index.logoutError)());
@@ -92,7 +93,7 @@ var logout = exports.logout = function logout(token) {
   };
 };
 
-var register = exports.register = function register(params, token) {
+var register = exports.register = function register(params) {
   return async function (dispatch) {
     dispatch((0, _index.registerPending)());
 
