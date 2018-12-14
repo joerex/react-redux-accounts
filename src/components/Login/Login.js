@@ -45,6 +45,8 @@ export class LoginComponent extends Component {
           <div className="alert alert-danger">{this.props.error}</div>
           }
 
+          <a href={this.props.forgotPasswordLink} target="_blank">Forgot password?</a>
+
         </form>
       </div>
     );
