@@ -70,7 +70,7 @@ export const login = (params) => {
         dispatch(loginSuccess({
           username: params.username,
           token: data.success.token,
-          role: {value: response.rolevalue, label: response.rolelabel}
+          role: {value: data.success.rolevalue, label: data.success.rolelabel}
         }))
       }
     }
