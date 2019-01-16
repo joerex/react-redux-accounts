@@ -60,7 +60,7 @@ var login = exports.login = function login(params) {
         dispatch((0, _index.loginSuccess)({
           username: params.username,
           token: data.success.token,
-          role: { value: response.rolevalue, label: response.rolelabel }
+          role: { value: data.success.rolevalue, label: data.success.rolelabel }
         }));
       }
     } catch (error) {
